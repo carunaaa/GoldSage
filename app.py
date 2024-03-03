@@ -331,7 +331,7 @@ st.title("Today's Actual Gold Price")
 for price in gold_prices:
     if "FINE GOLD (9999)" in price:
         # Remove the unwanted characters from the price
-        cleaned_price = price.replace("ЯЦЂ", "").replace("Яц░"," ").replace("Nrs", " Nrs").replace("(9999)", " ").replace("1 tola", "1 tola Nrs")
+        cleaned_price = price.replace("ЯЦЂ", "").replace("Яц░"," ").replace("Nrs", " Nrs").replace("(9999)", " ").replace("1 tola", "1 tola Nrs").replace("121000", "121000/-")
         
         # Display the GIF and gold price in the same container
         st.markdown(
@@ -346,7 +346,7 @@ for price in gold_prices:
                     padding: 10px;
                     border-radius: 10px;
                     margin: 10px;
-                    font-size: 20px;
+                    font-size: 25px;
                 }}
 
                 .price-and-gif-container img {{
@@ -367,8 +367,16 @@ for price in gold_prices:
 
 
 # Display the date_input without a separate label
-# user_date = st.sidebar.date_input("", key="user_date")
-user_date = st.sidebar.date_input("", key="user_date", max_value=max_date)
+
+# Get the current date
+current_date = datetime.now()
+
+# Limit the date input to today and one year from today
+max_date = current_date + timedelta(days=365)
+min_date = current_date
+
+# Display the date input widget with appropriate limits
+user_date = st.sidebar.date_input("", key="user_date", min_value=min_date, max_value=max_date)
 user_date_numeric = preprocess_user_date(user_date)
 user_num_input = preprocess_user_numerical_input(x_numerical_reshaped)
 # Prediction
@@ -384,7 +392,13 @@ dollars_to_nepali_rupees_exchange_rate = 133
 prediction_in_nepali_rupees = prediction_in_dollars_per_troy_ounce  * dollars_to_nepali_rupees_exchange_rate
 
 prediction_in_nepali_rupees_per_tola = prediction_in_nepali_rupees * 0.373 
-prediction_in_nepali_rupees_per_tola_tax = prediction_in_nepali_rupees * 0.373 + (16.9/100 * prediction_in_nepali_rupees_per_tola)
+# prediction_in_nepali_rupees_per_tola_tax = prediction_in_nepali_rupees * 0.373 + (16.9/100 * prediction_in_nepali_rupees_per_tola)
+
+prediction_in_nepali_rupees_per_tola_tax = prediction_in_nepali_rupees_per_tola + 21957
+
+
+
+
 
 # Display predictions on the sidebar
 
