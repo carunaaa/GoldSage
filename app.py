@@ -11,6 +11,8 @@ import matplotlib.pyplot as plt
 from sklearn.metrics import mean_absolute_error, mean_squared_error
 from tensorflow.keras.utils import plot_model
 from datetime import timedelta
+import requests
+from bs4 import BeautifulSoup
 
 
 import os
@@ -98,6 +100,22 @@ st.markdown(
     """,
     unsafe_allow_html=True
 )
+
+
+# def scrapegold_prices():
+#     url = "https://www.fenegosida.org/"
+#     response = requests.get(url)
+#     soup = BeautifulSoup(response.content, "html.parser")
+#     gold_prices = []
+#     for div in soup.find_all("div", class_="rate-gold"):
+#         price = div.find("div", class_="rate-gold post").text.strip()
+#         gold_prices.append(price)
+#     return gold_prices
+
+# # Call the function and print the result
+# gold_prices = scrapegold_prices()
+# for price in gold_prices:
+#     print(price)
 
 
 
@@ -281,6 +299,71 @@ current_date = datetime.now()
 
 max_date = current_date + timedelta(days=365)
 
+def scrapegold_prices():
+    url = "https://www.fenegosida.org/"
+    response = requests.get(url)
+    soup = BeautifulSoup(response.content, "html.parser")
+    gold_prices = []
+    for div in soup.find_all("div", class_="rate-gold post"):
+        price = div.text.strip()
+        gold_prices.append(price)
+    return gold_prices
+import base64
+
+def gif_to_base64(gif_path):
+    with open(gif_path, "rb") as f:
+        base64_image = base64.b64encode(f.read()).decode("utf-8")
+    return base64_image
+
+# Path to your GIF file
+gif_path = "goldp.gif"
+
+# Convert GIF to Base64
+base64_image = gif_to_base64(gif_path)
+
+# Call the function to scrape gold prices
+gold_prices = scrapegold_prices()
+
+# Display the gold prices on Streamlit frontend
+st.title("Today's Actual Gold Price")
+
+# Display the gold prices and GIFs using the same container
+for price in gold_prices:
+    if "FINE GOLD (9999)" in price:
+        # Remove the unwanted characters from the price
+        cleaned_price = price.replace("ЯЦЂ", "").replace("Яц░"," ").replace("Nrs", " Nrs").replace("(9999)", " ").replace("1 tola", "1 tola Nrs")
+        
+        # Display the GIF and gold price in the same container
+        st.markdown(
+            f"""
+            <style>
+                .price-and-gif-container {{
+                    display: flex;
+                    flex-direction: row;
+                    align-items: center;
+                    justify-content: center;
+                    background-color: rgba(128, 128, 128, 0.3);
+                    padding: 10px;
+                    border-radius: 10px;
+                    margin: 10px;
+                    font-size: 20px;
+                }}
+
+                .price-and-gif-container img {{
+                    width: 100px;
+                    margin-right: 20px;
+                    
+                }}
+            </style>
+            <div class="price-and-gif-container">
+                <img src="data:image/gif;base64,{base64_image}">
+                <div style="text-align: center;">
+                    {cleaned_price}
+                </div>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
 
 
 # Display the date_input without a separate label
@@ -304,6 +387,18 @@ prediction_in_nepali_rupees_per_tola = prediction_in_nepali_rupees * 0.373
 prediction_in_nepali_rupees_per_tola_tax = prediction_in_nepali_rupees * 0.373 + (16.9/100 * prediction_in_nepali_rupees_per_tola)
 
 # Display predictions on the sidebar
+
+st.sidebar.subheader(f"For 1 Tola Gold,")
+st.sidebar.markdown(f'<h2 style="color: gold;">Predicted Gold Price (exclusive of tax):</h2>', unsafe_allow_html=True)
+st.sidebar.subheader(f" NPR {prediction_in_nepali_rupees_per_tola:.2f}")
+
+st.sidebar.markdown(f'<h2 style="color: gold;">Predicted Gold Price (inclusive of tax):</h2>', unsafe_allow_html=True)
+st.sidebar.subheader(f" NPR {prediction_in_nepali_rupees_per_tola_tax:.2f}")
+
+icon_path = "m.gif"
+st.sidebar.image(icon_path, use_column_width=True)
+
+# Display predictions on the sidebar
 st.sidebar.subheader(f"For 1 Troy Ounce Gold,")
 st.sidebar.markdown(f'<h2 style="color: gold;">Predicted Gold Price (in Dollar):</h2>', unsafe_allow_html=True)
 st.sidebar.subheader(f" $ {prediction_in_dollars_per_troy_ounce:.2f}")
@@ -312,15 +407,6 @@ st.sidebar.markdown(f'<h2 style="color: gold;">Predicted Gold Price (in Nepali R
 
 st.sidebar.subheader(f"NPR {prediction_in_nepali_rupees:.2f}")
 
-icon_path = "m.gif"
-st.sidebar.image(icon_path, use_column_width=True)
-
-st.sidebar.subheader(f"For 1 Tola Gold,")
-st.sidebar.markdown(f'<h2 style="color: gold;">Predicted Gold Price (exclusive of tax):</h2>', unsafe_allow_html=True)
-st.sidebar.subheader(f" NPR {prediction_in_nepali_rupees_per_tola:.2f}")
-
-st.sidebar.markdown(f'<h2 style="color: gold;">Predicted Gold Price (inclusive of tax):</h2>', unsafe_allow_html=True)
-st.sidebar.subheader(f" NPR {prediction_in_nepali_rupees_per_tola_tax:.2f}")
 
 
 st.write(' ')
@@ -431,3 +517,4 @@ sns.distplot(dataset['Price'],  color='blue')
 plt.xlabel('Gold Price')
 plt.ylabel('Density')
 st.pyplot(plt)
+
