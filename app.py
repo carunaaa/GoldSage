@@ -13,18 +13,14 @@ from tensorflow.keras.utils import plot_model
 from datetime import timedelta
 import requests
 from bs4 import BeautifulSoup
-
-
+import distutils
 import os
-import streamlit as st
 import requests
 import base64
 
 st.set_page_config(
     layout="wide",
 )
-
-
 
 @st.cache_data
 def get_img_as_base64(url):
